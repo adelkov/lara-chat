@@ -12,8 +12,8 @@ function Show({auth, chat}: PageProps) {
         <Head title="Chat"/>
         <div className={'max-h-[500px] max-w-3xl mx-auto space-y-10'}>
             <div className={'space-y-4'}>
-            <h1 className={'text-4xl'}>Topic: {chat.topic}</h1>
-            <p className={'text-xs text-gray-400'}>Created {formatRelative(new Date(chat.created_at), Date.now())}</p>
+                <h1 className={'text-4xl'}>Topic: {chat.topic}</h1>
+                <p className={'text-xs text-gray-400'}>Created {formatRelative(new Date(chat.created_at), Date.now())}</p>
             </div>
 
             <ChatWindow chat={chat}/>
