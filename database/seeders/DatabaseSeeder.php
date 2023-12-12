@@ -12,11 +12,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        $adel = \App\Models\User::factory()->create([
+            'name' => 'Adel',
+            'email' => 'adel@duck.com'
+        ]);
+        $users = \App\Models\User::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        \App\Models\User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+
+        $chats = \App\Models\Chat::factory(10)->create();
+
+        \App\Models\Message::factory(100)->recycle($chats)->recycle($users)->create();
+        \App\Models\Message::factory(25)->recycle($chats)->recycle($adel)->create();
     }
 }
