@@ -28,15 +28,24 @@ function ChatWindow({chat}: Props) {
     return <>
         <div
             ref={ref}
-            className={clsx('scroll-smooth max-h-[500px] flex bg-slate-600 flex-col gap-4 p-4 border-white border rounded-3xl overflow-scroll')}>
+            className={clsx('scroll-smooth max-h-[500px] flex bg-slate-600 flex-col gap-4 p-4 rounded-3xl overflow-scroll')}>
             {chat.messages.map(message => (
-                <div key={message.id} className={clsx('p-4 bg-slate-700 rounded w-2/3', {
-                    'self-end': message.user_id === props.auth.user.id,
+                <div key={message.id} className={clsx('p-4 rounded-3xl w-2/3 bg-slate-700 space-y-4', {
+                    'self-end ': message.user_id === props.auth.user.id,
                 })}>
+                    {message.user_id !== props.auth.user.id && (
+                        <div className={'mb-2 space-y-2'}>
+                            <p className={'text-gray-100 font-bold inline px-2 py-1 bg-slate-600 rounded-3xl'}>
+                                {message.user.name}
+                            </p>
+                        </div>
+
+                    )}
                     {message.body}
                     <p className={'text-gray-400 text-xs'}>
-                        {message.user.name} - {message.user.email}   {' '}
-                        [<span className={'text-xs text-gray-400'}>Created {formatRelative(new Date(chat.created_at), Date.now())}</span>]
+
+                        <span
+                            className={'text-xs text-gray-400'}>Created {formatRelative(new Date(chat.created_at), Date.now())}</span>
                     </p>
 
                 </div>
