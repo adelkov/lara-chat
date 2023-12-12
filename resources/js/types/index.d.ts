@@ -23,7 +23,7 @@ type Chat = {
     messages: Message[];
 }
 
-type Message = {
+export type Message = {
     id: number;
     chat_id: number;
     body: string;

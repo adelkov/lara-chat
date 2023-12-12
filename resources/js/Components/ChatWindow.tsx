@@ -1,17 +1,40 @@
 import clsx from "clsx";
 import {Input} from "@/Components/ui/input";
 import {Button} from "@/Components/ui/button";
-import {Chat, PageProps} from "@/types";
-import {useForm, usePage} from '@inertiajs/react';
+import {Chat, Message, PageProps} from "@/types";
+import {router, useForm, usePage} from '@inertiajs/react';
 import {formatRelative} from "date-fns";
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
+import pusher from "@/lib/pusher";
 
 type Props = {
     chat: Chat
 }
 
 function ChatWindow({chat}: Props) {
-    const {post, data, setData, reset} = useForm({
+    const [scrollTop, setScrollTop] = useState<number>(0)
+
+    useEffect(() => {
+
+        const channel = pusher.subscribe('messages')
+        channel.bind('App\\Events\\NewMessage', (data: Message) => {
+            const isMyTopic = data.chat_id === chat.id
+            if (!isMyTopic) return
+
+            router.visit(route('chats.show', chat), {
+                preserveScroll: true,
+                preserveState: true,
+            })
+        })
+
+        return () => {
+            channel.unbind()
+            pusher.unsubscribe('messages')
+        }
+    }, [])
+
+
+    const {post, processing, data, errors, setData, reset} = useForm({
         body: ''
     })
     const {props} = usePage<PageProps>()
@@ -20,9 +43,15 @@ function ChatWindow({chat}: Props) {
 
     useEffect(() => {
         if (ref.current) {
-            ref.current.scrollTop = ref.current.scrollHeight
+            setScrollTop(ref.current.scrollHeight)
         }
     }, [chat.messages])
+
+    useEffect(() => {
+        if (ref.current) {
+            ref.current.scrollTop = scrollTop
+        }
+    }, [scrollTop])
 
 
     return <>
@@ -43,7 +72,6 @@ function ChatWindow({chat}: Props) {
                     )}
                     {message.body}
                     <p className={'text-gray-400 text-xs'}>
-
                         <span
                             className={'text-xs text-gray-400'}>Created {formatRelative(new Date(chat.created_at), Date.now())}</span>
                     </p>
@@ -57,23 +85,30 @@ function ChatWindow({chat}: Props) {
                     e.preventDefault()
 
                     post('/chats/' + chat.id + '/messages/', {
+                        preserveScroll: true,
                         onSuccess: () => {
                             reset()
-                        },
-                        preserveScroll: true,
+                        }
                     })
                 }}>
                 <Input
                     placeholder={'Type your message here...'}
                     type="text"
-                    className={'bg-slate-700 w-full p-8 rounded-xl'}
+                    className={clsx('bg-slate-700 w-full p-8 rounded-xl', {
+                        'border border-red-500': errors && errors.body
+                    })}
                     onChange={
                         (e) => {
                             setData({body: e.target.value})
                         }
                     } value={data.body}/>
 
+                {errors && errors.body && (
+                    <p className={'text-red-500 text-xs absolute'}>{errors.body}</p>
+                )}
+
                 <Button
+                    disabled={processing}
                     className={'absolute right-3 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-slate-600 rounded text-white'}
                     type={'submit'}>send</Button>
             </form>

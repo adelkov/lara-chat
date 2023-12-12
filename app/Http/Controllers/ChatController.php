@@ -24,6 +24,8 @@ class ChatController extends Controller
 
     public function store(\App\Models\Chat $chat, Request $request)
     {
+
+
         $request->validate([
             'body' => 'required|string',
         ]);
@@ -32,6 +34,9 @@ class ChatController extends Controller
             'body' => $request->input('body'),
             'user_id' => auth()->user()->id,
         ]);
+
+        // dispatch message event
+        event(new \App\Events\NewMessage($message));
 
         return redirect(route('chats.show', $chat));
     }
