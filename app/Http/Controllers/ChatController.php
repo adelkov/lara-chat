@@ -38,7 +38,7 @@ class ChatController extends Controller
         $message = $chat->messages()->create([
             'body' => $request->input('body'),
             'user_id' => auth()->user()->id,
-        ]);
+        ])->load('user');
 
         // dispatch message event
         event(new NewMessage($message));

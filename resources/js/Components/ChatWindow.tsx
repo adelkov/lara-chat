@@ -2,10 +2,9 @@ import clsx from "clsx";
 import {Input} from "@/Components/ui/input";
 import {Button} from "@/Components/ui/button";
 import {Chat, Message, PageProps, PrivateChat, PrivateMessage} from "@/types";
-import {router, useForm, usePage} from '@inertiajs/react';
+import {useForm, usePage} from '@inertiajs/react';
 import {formatRelative} from "date-fns";
 import {useEffect, useRef, useState} from "react";
-import pusher from "@/lib/pusher";
 
 type Props = {
     chat: Chat | PrivateChat
@@ -24,7 +23,9 @@ function ChatWindow({chat}: Props) {
 
     useEffect(() => {
         if (isPrivateChat(chat)) {
-            window.Echo.private('private-messages.' + chat.id).listen('NewPrivateMessage', (data: { privateMessage:PrivateMessage }) => {
+            window.Echo.private('private-messages.' + chat.id).listen('NewPrivateMessage', (data: {
+                privateMessage: PrivateMessage
+            }) => {
                 setData({body: ''})
                 setMessages((messages) => [...messages, data.privateMessage])
             })
@@ -33,6 +34,14 @@ function ChatWindow({chat}: Props) {
                 setData({body: ''})
                 setMessages((messages) => [...messages, data.message])
             })
+        }
+
+        return () => {
+            if (isPrivateChat(chat)) {
+                window.Echo.leave('private-messages.' + chat.id)
+            } else {
+                window.Echo.leave('messages.' + chat.id)
+            }
         }
     }, [])
 
@@ -67,7 +76,7 @@ function ChatWindow({chat}: Props) {
                 })}>
                     {message.user_id !== props.auth.user.id && (
                         <div className={'mb-2 space-y-2'}>
-                            <p className={'text-gray-100 font-bold inline px-2 py-1 bg-slate-600 rounded-3xl'}>
+                            <p className={'text-white font-bold inline px-2 py-1 bg-pink-600 rounded-3xl'}>
                                 {message.user?.name}
                             </p>
                         </div>
