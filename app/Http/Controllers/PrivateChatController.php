@@ -38,7 +38,7 @@ class PrivateChatController extends Controller
         $privateMessage = $privateChat->privateMessages()->create([
             'body' => $request->input('body'),
             'user_id' => auth()->user()->id,
-        ]);
+        ])->load('user');
 
         event(new NewPrivateMessage($privateMessage));
 

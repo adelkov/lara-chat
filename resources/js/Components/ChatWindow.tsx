@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import {Input} from "@/Components/ui/input";
 import {Button} from "@/Components/ui/button";
-import {Chat, Message, PageProps, PrivateChat} from "@/types";
+import {Chat, Message, PageProps, PrivateChat, PrivateMessage} from "@/types";
 import {router, useForm, usePage} from '@inertiajs/react';
 import {formatRelative} from "date-fns";
 import {useEffect, useRef, useState} from "react";
@@ -16,27 +16,22 @@ function isPrivateChat(chat: Chat | PrivateChat): chat is PrivateChat {
 }
 
 function ChatWindow({chat}: Props) {
-
-    const messages = isPrivateChat(chat) ? chat.private_messages : chat.messages
+    const [messages, setMessages] = useState(
+        isPrivateChat(chat) ? chat.private_messages : chat.messages
+    )
 
     const [scrollTop, setScrollTop] = useState<number>(0)
 
     useEffect(() => {
         if (isPrivateChat(chat)) {
-            window.Echo.private('private-messages.' + chat.id).listen('NewPrivateMessage', (data: Message) => {
-                console.log('new private message', data)
-                router.visit(route('privateChats.show', chat), {
-                    preserveScroll: true,
-                    preserveState: true,
-                })
+            window.Echo.private('private-messages.' + chat.id).listen('NewPrivateMessage', (data: { privateMessage:PrivateMessage }) => {
+                setData({body: ''})
+                setMessages((messages) => [...messages, data.privateMessage])
             })
         } else {
-            window.Echo.channel('messages.' + chat.id).listen('NewMessage', (data: Message) => {
-                console.log('new message', data)
-                router.visit(route('chats.show', chat), {
-                    preserveScroll: true,
-                    preserveState: true,
-                })
+            window.Echo.channel('messages.' + chat.id).listen('NewMessage', (data: { message:Message }) => {
+                setData({body: ''})
+                setMessages((messages) => [...messages, data.message])
             })
         }
     }, [])
@@ -95,9 +90,6 @@ function ChatWindow({chat}: Props) {
                     const pathname  = isPrivateChat(chat) ? '/private-chats/' : '/chats/'
                     post(pathname + chat.id + '/messages/', {
                         preserveScroll: true,
-                        onSuccess: () => {
-                            reset()
-                        }
                     })
                 }}>
                 <Input

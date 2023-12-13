@@ -37,6 +37,17 @@ export type PrivateChat = {
     users: [User, User];
 }
 
+export type PrivateMessage = {
+    id: number;
+    chat_id: number;
+    body: string;
+    user_id: number;
+    message: string;
+    created_at: string;
+    updated_at: string;
+    user: User;
+}
+
 export type Message = {
     id: number;
     chat_id: number;
