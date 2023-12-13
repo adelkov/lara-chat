@@ -42,4 +42,19 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function privateChats()
+    {
+        return $this->belongsToMany(PrivateChat::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function privateMessages()
+    {
+        return $this->hasMany(PrivateMessage::class);
+    }
 }

@@ -12,6 +12,10 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
 
     chat: Chat;
 
+    privateChat: PrivateChat;
+
+    privateChats: PrivateChat[];
+
     chats:Chat[]
 };
 
@@ -21,6 +25,14 @@ type Chat = {
     updated_at: string;
     created_at: string;
     messages: Message[];
+}
+
+export type PrivateChat = {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    private_messages: Message[];
+    users: [User, User];
 }
 
 export type Message = {

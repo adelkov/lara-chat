@@ -1,36 +1,33 @@
 import clsx from "clsx";
 import {Input} from "@/Components/ui/input";
 import {Button} from "@/Components/ui/button";
-import {Chat, Message, PageProps} from "@/types";
+import {Chat, Message, PageProps, PrivateChat} from "@/types";
 import {router, useForm, usePage} from '@inertiajs/react';
 import {formatRelative} from "date-fns";
 import {useEffect, useRef, useState} from "react";
 import pusher from "@/lib/pusher";
 
 type Props = {
-    chat: Chat
+    chat: Chat | PrivateChat
+}
+
+function isPrivateChat(chat: Chat | PrivateChat): chat is PrivateChat {
+    return (chat as Chat).topic === undefined
 }
 
 function ChatWindow({chat}: Props) {
+
+    const messages = isPrivateChat(chat) ? chat.private_messages : chat.messages
+
     const [scrollTop, setScrollTop] = useState<number>(0)
 
     useEffect(() => {
-
-        const channel = pusher.subscribe('messages')
-        channel.bind('App\\Events\\NewMessage', (data: Message) => {
-            const isMyTopic = data.chat_id === chat.id
-            if (!isMyTopic) return
-
+        window.Echo.channel('messages.' + chat.id).listen('NewMessage', (data: Message) => {
             router.visit(route('chats.show', chat), {
                 preserveScroll: true,
                 preserveState: true,
             })
         })
-
-        return () => {
-            channel.unbind()
-            pusher.unsubscribe('messages')
-        }
     }, [])
 
 
@@ -45,7 +42,7 @@ function ChatWindow({chat}: Props) {
         if (ref.current) {
             setScrollTop(ref.current.scrollHeight)
         }
-    }, [chat.messages])
+    }, [messages])
 
     useEffect(() => {
         if (ref.current) {
@@ -57,8 +54,8 @@ function ChatWindow({chat}: Props) {
     return <>
         <div
             ref={ref}
-            className={clsx('scroll-smooth max-h-[500px] flex bg-slate-600 flex-col gap-4 p-4 rounded-3xl overflow-scroll')}>
-            {chat.messages.map(message => (
+            className={clsx('scroll-smooth max-h-[500px] outline outline-4 outline-gray-400 flex bg-slate-600 flex-col gap-4 p-4 rounded-3xl overflow-scroll')}>
+            {messages?.map(message => (
                 <div key={message.id} className={clsx('p-4 rounded-3xl w-2/3 bg-slate-700 space-y-4', {
                     'self-end ': message.user_id === props.auth.user.id,
                 })}>
@@ -84,7 +81,8 @@ function ChatWindow({chat}: Props) {
                 onSubmit={(e) => {
                     e.preventDefault()
 
-                    post('/chats/' + chat.id + '/messages/', {
+                    const pathname  = isPrivateChat(chat) ? '/private-chats/' : '/chats/'
+                    post(pathname + chat.id + '/messages/', {
                         preserveScroll: true,
                         onSuccess: () => {
                             reset()

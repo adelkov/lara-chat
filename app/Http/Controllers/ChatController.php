@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMessage;
+use App\Models\Chat;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
 {
     public function index()
     {
-        $chats = \App\Models\Chat::with('messages')->get();
-        return inertia('Chats/Index', [
+        $chats = Chat::with('messages')->get();
+        $privateChats = auth()->user()->privateChats()->with('users')->get();
+
+        return inertia('Index', [
             'chats' => $chats,
+            'privateChats' => $privateChats,
         ]);
     }
 
-    public function show(\App\Models\Chat $chat)
+    public function show(Chat $chat)
     {
         $chat->load('messages')->load('messages.user');
         return inertia('Chats/Show', [
@@ -22,10 +27,8 @@ class ChatController extends Controller
         ]);
     }
 
-    public function store(\App\Models\Chat $chat, Request $request)
+    public function store(Chat $chat, Request $request)
     {
-
-
         $request->validate([
             'body' => 'required|string',
         ]);
@@ -36,7 +39,7 @@ class ChatController extends Controller
         ]);
 
         // dispatch message event
-        event(new \App\Events\NewMessage($message));
+        event(new NewMessage($message));
 
         return redirect(route('chats.show', $chat));
     }

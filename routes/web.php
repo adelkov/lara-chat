@@ -25,9 +25,8 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/dashboard', [App\Http\Controllers\ChatController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -35,10 +34,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/chats', [App\Http\Controllers\ChatController::class, 'index'])->name('chats');
 
-Route::get('/chats/{chat}', [App\Http\Controllers\ChatController::class, 'show'])->name('chats.show');
+Route::get('/chats/{chat}', [App\Http\Controllers\ChatController::class, 'show'])->middleware(['auth', 'verified'])->name('chats.show');
 
-Route::post('/chats/{chat}/messages', [App\Http\Controllers\ChatController::class, 'store'])->name(`messages.store`);
+Route::get('/private-chats/{privateChat}', [App\Http\Controllers\PrivateChatController::class, 'show'])->name('privateChats.show');
+
+Route::post('/chats/{chat}/messages', [App\Http\Controllers\ChatController::class, 'store'])->middleware(['auth', 'verified'])->name(`messages.store`);
+
+Route::post('/private-chats/{privateChat}/messages', [App\Http\Controllers\PrivateChatController::class, 'store'])->middleware(['auth', 'verified'])->name(`privateChats.store`);
 
 require __DIR__.'/auth.php';
