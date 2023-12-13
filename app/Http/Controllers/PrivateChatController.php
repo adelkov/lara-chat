@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMessage;
+use App\Events\NewPrivateMessage;
 use App\Models\PrivateChat;
 use App\Models\PrivateMessage;
 use Illuminate\Http\Request;
@@ -38,7 +40,7 @@ class PrivateChatController extends Controller
             'user_id' => auth()->user()->id,
         ]);
 
-        // TODO: dispatch message event
+        event(new NewPrivateMessage($privateMessage));
 
         return redirect(route('privateChats.show', $privateChat));
     }
@@ -76,7 +78,7 @@ class PrivateChatController extends Controller
     public function show(PrivateChat $privateChat)
     {
         // get private chat by id with all messages and users
-        $privateChat = PrivateChat::with('users')->with('privateMessages')->find($privateChat->id);
+        $privateChat = PrivateChat::with('users', 'privateMessages.user')->find($privateChat->id);
 
         return inertia('PrivateChats/Show', [
             'privateChat' => $privateChat,

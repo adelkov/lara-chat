@@ -22,12 +22,23 @@ function ChatWindow({chat}: Props) {
     const [scrollTop, setScrollTop] = useState<number>(0)
 
     useEffect(() => {
-        window.Echo.channel('messages.' + chat.id).listen('NewMessage', (data: Message) => {
-            router.visit(route('chats.show', chat), {
-                preserveScroll: true,
-                preserveState: true,
+        if (isPrivateChat(chat)) {
+            window.Echo.private('private-messages.' + chat.id).listen('NewPrivateMessage', (data: Message) => {
+                console.log('new private message', data)
+                router.visit(route('privateChats.show', chat), {
+                    preserveScroll: true,
+                    preserveState: true,
+                })
             })
-        })
+        } else {
+            window.Echo.channel('messages.' + chat.id).listen('NewMessage', (data: Message) => {
+                console.log('new message', data)
+                router.visit(route('chats.show', chat), {
+                    preserveScroll: true,
+                    preserveState: true,
+                })
+            })
+        }
     }, [])
 
 
@@ -62,7 +73,7 @@ function ChatWindow({chat}: Props) {
                     {message.user_id !== props.auth.user.id && (
                         <div className={'mb-2 space-y-2'}>
                             <p className={'text-gray-100 font-bold inline px-2 py-1 bg-slate-600 rounded-3xl'}>
-                                {message.user.name}
+                                {message.user?.name}
                             </p>
                         </div>
 
