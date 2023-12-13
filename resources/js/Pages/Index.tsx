@@ -2,10 +2,10 @@ import {Head, Link} from "@inertiajs/react";
 import {PageProps} from "@/types";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {formatRelative} from "date-fns";
+import StartNewPrivateChat from "@/Pages/PrivateChats/StartNewPrivateChat";
 
 
-function Index({auth, chats, privateChats}: PageProps) {
-
+function Index({auth, chats, privateChats, users}: PageProps) {
     return <AuthenticatedLayout
         user={auth.user}
         header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Dashboard</h2>}
@@ -43,6 +43,7 @@ function Index({auth, chats, privateChats}: PageProps) {
                             </Link>
                         </div>
                     ))}
+                    <StartNewPrivateChat/>
                 </div>
             </div>
         </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\NewMessage;
 use App\Models\Chat;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
@@ -14,6 +15,7 @@ class ChatController extends Controller
         $privateChats = auth()->user()->privateChats()->with('users')->get();
 
         return inertia('Index', [
+            'users' => User::all(),
             'chats' => $chats,
             'privateChats' => $privateChats,
         ]);

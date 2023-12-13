@@ -25,9 +25,9 @@ class PrivateChatController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Send message in this private chat.
      */
-    public function store(PrivateChat $privateChat, Request $request)
+    public function sendMessage(PrivateChat $privateChat, Request $request)
     {
         $request->validate([
             'body' => 'required|string',
@@ -38,8 +38,35 @@ class PrivateChatController extends Controller
             'user_id' => auth()->user()->id,
         ]);
 
-        // dispatch message event
+        // TODO: dispatch message event
 
+        return redirect(route('privateChats.show', $privateChat));
+    }
+
+    /**
+     * Start a new private chat with a user.
+     * If you already have a private chat with this user, redirect to it.
+     */
+    public function store(Request $request)
+    {
+        $user_id = $request->input('userId');
+        $privateChat = PrivateChat::whereHas('users', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        })->whereHas('users', function ($query) {
+            $query->where('user_id', auth()->user()->id);
+        })->first();
+
+        if ($privateChat) {
+            return redirect(route('privateChats.show', $privateChat));
+        }
+
+        // create private chat
+        $privateChat = PrivateChat::create();
+
+        // add users to private chat
+        $privateChat->users()->attach([$user_id, auth()->user()->id]);
+
+        // Redirect to created chat
         return redirect(route('privateChats.show', $privateChat));
     }
 

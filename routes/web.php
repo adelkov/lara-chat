@@ -39,8 +39,10 @@ Route::get('/chats/{chat}', [App\Http\Controllers\ChatController::class, 'show']
 
 Route::get('/private-chats/{privateChat}', [App\Http\Controllers\PrivateChatController::class, 'show'])->name('privateChats.show');
 
-Route::post('/chats/{chat}/messages', [App\Http\Controllers\ChatController::class, 'store'])->middleware(['auth', 'verified'])->name(`messages.store`);
+Route::post('/chats/{chat}/messages', [App\Http\Controllers\ChatController::class, 'store'])->middleware(['auth', 'verified'])->name("messages.store");
 
-Route::post('/private-chats/{privateChat}/messages', [App\Http\Controllers\PrivateChatController::class, 'store'])->middleware(['auth', 'verified'])->name(`privateChats.store`);
+Route::post('/private-chats/{privateChat}/messages', [App\Http\Controllers\PrivateChatController::class, 'sendMessage'])->middleware(['auth', 'verified'])->name("privateChats.sendMessage");
+
+Route::post('/private-chats', [App\Http\Controllers\PrivateChatController::class, 'store'])->middleware(['auth', 'verified'])->name("privateChats.store");
 
 require __DIR__.'/auth.php';
