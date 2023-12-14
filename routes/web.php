@@ -45,4 +45,12 @@ Route::post('/private-chats/{privateChat}/messages', [App\Http\Controllers\Priva
 
 Route::post('/private-chats', [App\Http\Controllers\PrivateChatController::class, 'store'])->middleware(['auth', 'verified'])->name("privateChats.store");
 
+Route::get('/weavy', [
+    App\Http\Controllers\WeavyController::class, 'index'
+])->middleware(['auth', 'verified'])->name("weavy.index",);
+
+Route::post('/weavy/{userId}', [
+    App\Http\Controllers\WeavyController::class, 'start'
+])->middleware(['auth', 'verified'])->name("weavy.start",);
+
 require __DIR__.'/auth.php';

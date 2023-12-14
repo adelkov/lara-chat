@@ -1,3 +1,5 @@
+import {ConversationType} from "@weavy/uikit-web/dist/types/types/app.types";
+
 export interface User {
     id: number;
     name: string;
@@ -19,6 +21,23 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     privateChats: PrivateChat[];
 
     chats:Chat[]
+
+    weavyUsers: {
+        data: {
+            id: number;
+            created_at: string;
+            email?: string;
+            uid: string;
+            display_name: string;
+        }[]
+    }
+
+    weavy: {
+        token: string;
+        conversations: {
+            data: ConversationType[]
+        }
+    }
 };
 
 type Chat = {
