@@ -34,12 +34,12 @@ function Index({auth, chats, privateChats, users}: PageProps) {
                 <div className={'space-y-4'}>
                     {privateChats.map(chat => (
                         <div
-                            className={'bg-slate-800 transition-all rounded hover:outline hover:outline-4 outline-gray-400 shadow-xl p-3'}
+                            className={'bg-blue-500 transition-all rounded hover:outline hover:outline-4 outline-gray-400 shadow-xl p-3'}
                             key={chat.id}>
                             <Link href={route('privateChats.show', chat.id)}>
                                 <div className={'text-white font-black'}>{chat.users[0].name} - {chat.users[1].name}</div>
                                 <span
-                                    className={'text-xs text-gray-400'}>Created {formatRelative(new Date(chat.created_at), Date.now())}</span>
+                                    className={'text-xs text-gray-100'}>Created {formatRelative(new Date(chat.created_at), Date.now())}</span>
                             </Link>
                         </div>
                     ))}
